@@ -34,11 +34,11 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:stormbirds/payservice</connection>
-        <developerConnection>scm:git:git@github.com:stormbirds/payservice</developerConnection>
-        <url>scm:git:git@github.com:stormbirds/payservice</url>
-      <tag>payservice-0.0.1</tag>
-  </scm>
+        <connection>scm:git:https://github.com/stormbirds/payservice.git</connection>
+        <developerConnection>scm:git:git@github.com:stormbirds/payservice.git</developerConnection>
+        <url>https://github.com/stormbirds/payservice</url>
+    </scm>
+
     <developers>
         <developer>
             <name>stormbirds</name>
