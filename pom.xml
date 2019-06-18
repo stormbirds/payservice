@@ -19,11 +19,12 @@
         <version>2.1.5.RELEASE</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
+    
     <groupId>cn.stormbirds</groupId>
     <artifactId>payservice</artifactId>
     <version>0.0.1</version>
     <name>payservice</name>
-    <description>Demo project for Spring Boot</description>
+    <description>第三方支付聚合服务</description>
     <url>https://github.com/stormbirds/payservice</url>
 
     <licenses>
@@ -137,21 +138,20 @@
                 </executions>
             </plugin>
 
-            <!--            <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-gpg-plugin</artifactId>
-                            <version>1.6</version>
-                            <executions>
-                                <execution>
-                                    <id>sign-artifacts</id>
-                                    <phase>verify</phase>
-                                    <goals>
-                                        <goal>sign</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>-->
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -165,17 +165,28 @@
                 </configuration>
             </plugin>
 
-            
+
         </plugins>
     </build>
 
-    <profiles>
-        <!-- mvn clean javadoc:jar source:jar deploy -P release -Dgpg.passphrase=xxxx -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <!--<profiles>
+        &lt;!&ndash; mvn clean javadoc:jar source:jar deploy -P release -Dgpg.passphrase=xxxx &ndash;&gt;
         <profile>
             <id>release</id>
             <build>
                 <plugins>
-                    <!-- GPG -->
+                    &lt;!&ndash; GPG &ndash;&gt;
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -202,6 +213,6 @@
                 </repository>
             </distributionManagement>
         </profile>
-    </profiles>
+    </profiles>-->
 
 </project>
