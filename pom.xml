@@ -184,6 +184,17 @@
         </repository>
     </distributionManagement>
 
+<!--    <distributionManagement>
+        <repository>
+            <id>rdc-releases</id>
+            <url>https://repo.rdc.aliyun.com/repository/76273-release-y2ijDu/</url>
+        </repository>
+        <snapshotRepository>
+            <id>rdc-snapshots</id>
+            <url>https://repo.rdc.aliyun.com/repository/76273-snapshot-FJLpK3/</url>
+        </snapshotRepository>
+    </distributionManagement>-->
+
     <!--<profiles>
         &lt;!&ndash; mvn clean javadoc:jar source:jar deploy -P release -Dgpg.passphrase=xxxx &ndash;&gt;
         <profile>
