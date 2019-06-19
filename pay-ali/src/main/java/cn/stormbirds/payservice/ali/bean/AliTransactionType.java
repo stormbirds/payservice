@@ -2,21 +2,7 @@ package cn.stormbirds.payservice.ali.bean;
 
 import cn.stormbirds.payservice.common.bean.TransactionType;
 
-/**
- * 阿里交易类型
- * <pre>
- * 说明交易类型主要用于支付接口调用参数所需
- * {@link #APP 新版app支付}
- *
- *
- *
- * </pre>
- *
- * @author egan
- *
- * email egzosn@gmail.com
- * date 2016/10/19 22:58
- */
+
 /**
  *
  * 说明交易类型主要用于支付接口调用参数所需

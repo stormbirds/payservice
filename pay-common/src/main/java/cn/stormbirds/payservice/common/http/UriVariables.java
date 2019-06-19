@@ -26,8 +26,8 @@ public class UriVariables {
      * @param uriVariables 匹配表达式的值
      * @return 匹配完的url
      * <code>
-     *     System.out.println(getUri(&quot;http://egan.in/{a}/ba/{a1}?{bb}={a1}&quot;, &quot;no1&quot;, &quot;no2&quot;, &quot;no3&quot;, &quot;no4&quot;));
-     *    结果 http://egan.in/no1/ba/no2?no3=no4
+     *     System.out.println(getUri(&quot;http://xxx.com/{a}/ba/{a1}?{bb}={a1}&quot;, &quot;no1&quot;, &quot;no2&quot;, &quot;no3&quot;, &quot;no4&quot;));
+     *    结果 http://xxx.com/no1/ba/no2?no3=no4
      * </code>
      *
      */
@@ -57,8 +57,8 @@ public class UriVariables {
      *      uriVariable.put(&quot;a&quot;, &quot;no1&quot;);
      *      uriVariable.put(&quot;a1&quot;, &quot;no2&quot;);
      *      uriVariable.put(&quot;bb&quot;, &quot;no3&quot;);
-     *      System.out.println(getUri(&quot;http://egan.in/{a}/ba/{a1}?{bb}={a1}&quot;, uriVariable));
-     *      结果 http://egan.in/no1/ba/no2?no3=no2
+     *      System.out.println(getUri(&quot;http://xxx.com/{a}/ba/{a1}?{bb}={a1}&quot;, uriVariable));
+     *      结果 http://xxx.com/no1/ba/no2?no3=no2
      * </code>
      */
     public static String getUri(String uri, Map<String, Object> uriVariables) {

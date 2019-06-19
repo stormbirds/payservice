@@ -197,26 +197,24 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
         Map<String, Object> bizContent = new TreeMap<>();
         bizContent.put("body", order.getBody());
-        bizContent.put("seller_id", payConfigStorage.getSeller());
+        if(StringUtils.isNotBlank(payConfigStorage.getSeller()))
+            bizContent.put("seller_id", payConfigStorage.getSeller());
         bizContent.put("subject", order.getSubject());
         bizContent.put("out_trade_no", order.getOutTradeNo());
         bizContent.put("total_amount", Util.conversionAmount(order.getPrice()).toString());
         switch ((AliTransactionType) order.getTransactionType()) {
             case PAGE:
-            case DIRECT:
-                bizContent.put(PASSBACK_PARAMS, order.getAddition());
-                bizContent.put(PRODUCT_CODE, "FAST_INSTANT_TRADE_PAY");
-                orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
-                break;
             case WAP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_WAP_PAY");
-                orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
+                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl()))
+                    orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
                 break;
             case APP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_MSECURITY_PAY");
-                orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
+                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl()))
+                    orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
                 break;
             case BAR_CODE:
             case WAVE_CODE:

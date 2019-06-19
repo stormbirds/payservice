@@ -105,7 +105,7 @@ public enum  WxTransactionType implements TransactionType {
             return true;
         }
     },
-    // TODO 2017/3/8 19:14 author: egan  交易辅助接口
+    // 交易辅助接口
     /**
      * 查询订单
      */

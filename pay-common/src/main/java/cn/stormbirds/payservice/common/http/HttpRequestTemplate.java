@@ -242,10 +242,7 @@ public class HttpRequestTemplate {
      * @param <T>          响应类型
      *
      * @return 类型对象
-     * <p>
-     * <code>
-     * getForObject(&quot;http://egan.in/pay/{id}/f/{type}&quot;, String.class, &quot;1&quot;, &quot;APP&quot;)
-     * </code>
+     *
      */
     public <T> T getForObject(String uri, Class<T> responseType, Object... uriVariables){
 
@@ -267,7 +264,7 @@ public class HttpRequestTemplate {
      *
      * uriVariables.put(&quot;type&quot;, &quot;APP&quot;);<br>
      *
-     * getForObject(&quot;http://egan.in/pay/{id}/f/{type}&quot;, String.class, uriVariables)<br>
+     * getForObject(&quot;http://xxx.com/pay/{id}/f/{type}&quot;, String.class, uriVariables)<br>
      * </code>
      */
     public <T> T getForObject(String uri, Class<T> responseType, Map<String, ?> uriVariables){
@@ -285,7 +282,7 @@ public class HttpRequestTemplate {
      * @return               类型对象
      *
      * <code>
-     *    getForObject(&quot;http://egan.in/pay/{id}/f/{type}&quot;, String.class, &quot;1&quot;, &quot;APP&quot;)
+     *    getForObject(&quot;http://xxx.com/pay/{id}/f/{type}&quot;, String.class, &quot;1&quot;, &quot;APP&quot;)
      * </code>
      */
     public <T> T getForObject(String uri, HttpHeader header, Class<T> responseType, Object... uriVariables){
@@ -309,7 +306,7 @@ public class HttpRequestTemplate {
      *
      * uriVariables.put(&quot;type&quot;, &quot;APP&quot;);<br>
      *
-     * getForObject(&quot;http://egan.in/pay/{id}/f/{type}&quot;, String.class, uriVariables)<br>
+     * getForObject(&quot;http://xxx.com/pay/{id}/f/{type}&quot;, String.class, uriVariables)<br>
      * </code>
      */
     public <T> T getForObject(String uri, HttpHeader header, Class<T> responseType, Map<String, ?> uriVariables){

@@ -194,7 +194,7 @@ public enum SignUtils {
         if (null != ignoreKey){
             Arrays.sort(ignoreKey);
         }
-        // TODO 2016/11/11 10:14 author: egan 已经排序好处理
+        // 已经排序好处理方法
         if (parameters instanceof SortedMap) {
             for (Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>)parameters.entrySet()) {
                 Object v = entry.getValue();
@@ -211,7 +211,7 @@ public enum SignUtils {
         }
 
 
-        // TODO 2016/11/11 10:14 author: egan 未排序须处理
+        //未排序须处理方法
         List<String> keys = new ArrayList<String>(parameters.keySet());
         //排序
         Collections.sort(keys);
