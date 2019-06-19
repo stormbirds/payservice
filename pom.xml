@@ -21,7 +21,7 @@
 
     <groupId>cn.stormbirds</groupId>
     <artifactId>payservice</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>payservice</name>
     <description>第三方支付聚合服务</description>
     <url>https://github.com/stormbirds/payservice</url>
@@ -50,6 +50,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <payservice.version>0.0.1-SNAPSHOT</payservice.version>
     </properties>
 
     <dependencies>
@@ -64,7 +65,16 @@
             <scope>test</scope>
         </dependency>-->
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>cn.stormbirds</groupId>
+                <artifactId>pay-common</artifactId>
+                <version>${payservice.version}</version>
+            </dependency>
 
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
