@@ -21,7 +21,7 @@
 
     <groupId>cn.stormbirds</groupId>
     <artifactId>payservice</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${payservice.version}</version>
     <name>payservice</name>
     <description>第三方支付聚合服务</description>
     <url>https://github.com/stormbirds/payservice</url>
@@ -37,7 +37,7 @@
         <connection>scm:git:git@github.com:stormbirds/payservice.git</connection>
         <developerConnection>scm:git:git@github.com:stormbirds/payservice.git</developerConnection>
         <url>scm:git:git@github.com:stormbirds/payservice</url>
-  </scm>
+    </scm>
 
     <developers>
         <developer>
@@ -50,7 +50,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <payservice.version>0.0.1-SNAPSHOT</payservice.version>
+        <payservice.version>0.0.2-SNAPSHOT</payservice.version>
     </properties>
 
     <dependencies>
