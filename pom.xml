@@ -135,8 +135,6 @@
                     <!-- 解决 java8 下发布到 maven 中心库时，生成 doc 的异常 -->
                     <additionalparam>-Xdoclint:none</additionalparam>
                     <encoding>UTF-8</encoding>
-                    <!--<outputDirectory>${basedir}</outputDirectory>-->
-                    <!--<reportOutputDirectory>${basedir}</reportOutputDirectory>-->
                 </configuration>
 
                 <executions>
@@ -184,6 +182,7 @@
         </plugins>
     </build>
 
+    <!--这里部署maven仓库地址-->
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
