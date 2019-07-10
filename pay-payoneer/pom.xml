@@ -3,10 +3,9 @@
     <parent>
         <artifactId>payservice</artifactId>
         <groupId>cn.stormbirds</groupId>
-        <version>${payservice.version}</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cn.stormbirds</groupId>
     <artifactId>pay-payoneer</artifactId>
     <packaging>jar</packaging>
     <dependencies>

@@ -1,5 +1,6 @@
 package cn.stormbirds.payservice.youdian.api;
 
+import cn.stormbirds.payservice.youdian.bean.WxYoudianPayMessage;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import cn.stormbirds.payservice.common.api.BasePayService;
@@ -448,8 +449,20 @@ public class WxYouDianPayService extends BasePayService<WxYouDianPayConfigStorag
      * @param type 交易类型
      * @return 请求地址
      */
+    @Override
     public String getReqUrl(TransactionType type){
         return URL + type.getMethod();
 
+    }
+
+    /**
+     * 创建消息
+     *
+     * @param message 支付平台返回的消息
+     * @return 支付消息对象
+     */
+    @Override
+    public PayMessage createMessage(Map<String, Object> message) {
+        return WxYoudianPayMessage.create(message);
     }
 }

@@ -15,7 +15,7 @@ import java.util.Map;
  * @date 2019/6/11 16:49
  *
  */
-public interface PayMessageHandler {
+public interface PayMessageHandler<M extends PayMessage, S extends PayService> {
 
     /**
      * 处理支付回调消息的处理器接口
@@ -25,9 +25,9 @@ public interface PayMessageHandler {
      * @return xml,text格式的消息，如果在异步规则里处理的话，可以返回null
      * @throws PayErrorException 支付错误异常
      */
-    PayOutMessage handle(PayMessage payMessage,
+    PayOutMessage handle(M payMessage,
                          Map<String, Object> context,
-                         PayService payService
+                         S payService
     ) throws PayErrorException;
 
 }

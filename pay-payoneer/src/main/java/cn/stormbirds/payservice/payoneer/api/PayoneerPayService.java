@@ -410,6 +410,7 @@ public class PayoneerPayService extends BasePayService<PayoneerConfigStorage> im
      *
      * @return 请求地址
      */
+    @Override
     public String getReqUrl(TransactionType type) {
         return (payConfigStorage.isTest() ? SANDBOX_DOMAIN : RELEASE_DOMAIN) + payConfigStorage.getPid() + "/" + type.getMethod();
     }

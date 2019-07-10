@@ -46,6 +46,7 @@ public class PayPalPayService extends BasePayService<PayPalConfigStorage>{
      * 获取对应的请求地址
      * @return 请求地址
      */
+    @Override
     public String getReqUrl(TransactionType transactionType){
         return (payConfigStorage.isTest() ? SANDBOX_REQ_URL : REQ_URL) + transactionType.getMethod();
     }

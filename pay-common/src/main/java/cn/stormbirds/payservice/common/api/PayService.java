@@ -379,4 +379,11 @@ public interface PayService<PC extends PayConfigStorage> {
      */
      String getReqUrl(TransactionType transactionType);
 
+    /**
+     * 创建消息
+     * @param message 支付平台返回的消息
+     * @return 支付消息对象
+     */
+    PayMessage createMessage(Map<String, Object> message);
+
 }

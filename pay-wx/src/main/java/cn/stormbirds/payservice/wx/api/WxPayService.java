@@ -1,8 +1,6 @@
 package cn.stormbirds.payservice.wx.api;
 
-import com.alibaba.fastjson.JSONObject;
 import cn.stormbirds.payservice.common.api.BasePayService;
-import cn.stormbirds.payservice.common.api.Callback;
 import cn.stormbirds.payservice.common.bean.*;
 import cn.stormbirds.payservice.common.bean.result.PayException;
 import cn.stormbirds.payservice.common.exception.PayErrorException;
@@ -15,13 +13,15 @@ import cn.stormbirds.payservice.common.util.sign.SignUtils;
 import cn.stormbirds.payservice.common.util.sign.encrypt.RSA2;
 import cn.stormbirds.payservice.common.util.str.StringUtils;
 import cn.stormbirds.payservice.wx.bean.WxPayError;
+import cn.stormbirds.payservice.wx.bean.WxPayMessage;
 import cn.stormbirds.payservice.wx.bean.WxTransactionType;
 import cn.stormbirds.payservice.wx.bean.WxTransferType;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -35,6 +35,7 @@ import static cn.stormbirds.payservice.wx.bean.WxTransferType.*;
  * @ Date 2019/6/17 20:35
  *
  */
+
 public class WxPayService extends BasePayService<WxPayConfigStorage> {
 
 
@@ -100,6 +101,7 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
      * @param transactionType 交易类型
      * @return 请求url
      */
+    @Override
     public String getReqUrl(TransactionType transactionType) {
 
         return URI + (payConfigStorage.isTest() ? SANDBOXNEW : "") + transactionType.getMethod();
@@ -272,7 +274,13 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
                 params.put("package", "Sign=WXPay");
             }
             String paySign = createSign(SignUtils.parameterText(params), payConfigStorage.getInputCharset());
+            LOG.debug("签名后字符串："+paySign);
             params.put(SIGN, paySign);
+
+            Map<String ,String > map = new HashMap<>(2);
+            map.put("outTradeNo",order.getOutTradeNo());
+            map.put("tradeNo", order.getTradeNo());
+            params.put("orderInfo", JSON.toJSONString(map));
             return params;
         }
         throw new PayErrorException(new WxPayError(result.getString(RETURN_CODE), result.getString(RETURN_MSG_CODE), "Invalid sign value"));
@@ -330,7 +338,6 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
      */
     @Override
     public String createSign(String content, String characterEncoding) {
-
         return createSign(content, characterEncoding, payConfigStorage.isTest());
     }
     /**
@@ -347,6 +354,8 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         if (test){
             keyPrivate = getKeyPrivate();
         }
+
+
         return signUtils.createSign(content + "&key=" + (signUtils == SignUtils.MD5 ? "" : keyPrivate), keyPrivate, characterEncoding).toUpperCase();
     }
 
@@ -630,13 +639,13 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
             parameters.put("desc", order.getRemark());
         }
         parameters.put(NONCE_STR, SignUtils.randomStr());
-        if (null != order.getTransferType() && TRANSFERS == order.getTransferType()) {
+        if (null != order.getTransferType() && PAY_BANK == order.getTransferType()) {
+            parameters.put(MCH_ID, payConfigStorage.getPid());
+            payBank(parameters, order);
+        } else {
+            order.setTransferType(WxTransferType.TRANSFERS);
             transfers(parameters, order);
             parameters.put("mchid", payConfigStorage.getPid());
-        } else {
-            parameters.put(MCH_ID, payConfigStorage.getPid());
-            order.setTransferType(WxTransferType.PAY_BANK);
-            payBank(parameters, order);
         }
         parameters.put(SIGN, createSign(SignUtils.parameterText(parameters, "&", SIGN), payConfigStorage.getInputCharset()));
 
@@ -724,5 +733,15 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         }
     }
 
+    /**
+     * 创建消息
+     *
+     * @param message 支付平台返回的消息
+     * @return 支付消息对象
+     */
+    @Override
+    public PayMessage createMessage(Map<String, Object> message) {
+        return WxPayMessage.create(message);
+    }
 
 }

@@ -394,4 +394,16 @@ public abstract class BasePayService<PC extends PayConfigStorage> implements Pay
         }
         return getPayMessageHandler().handle(payMessage, context, this);
     }
+
+
+    /**
+     * 创建消息
+     *
+     * @param message 支付平台返回的消息
+     * @return 支付消息对象
+     */
+    @Override
+    public PayMessage createMessage(Map<String, Object> message) {
+        return new PayMessage(message);
+    }
 }

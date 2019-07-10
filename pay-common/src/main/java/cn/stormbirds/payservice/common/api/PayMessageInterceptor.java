@@ -15,7 +15,7 @@ import java.util.Map;
  * @date 2019/3/15 16:50
  *
  */
-public interface PayMessageInterceptor {
+public interface PayMessageInterceptor<M extends PayMessage, S extends PayService> {
 
     /**
      * 拦截微信消息
@@ -25,9 +25,9 @@ public interface PayMessageInterceptor {
      * @param payService 支付服务
      * @return true代表OK，false代表不OK
      */
-    boolean intercept(PayMessage payMessage,
+    boolean intercept(M payMessage,
                       Map<String, Object> context,
-                      PayService payService
+                      S payService
     ) throws PayErrorException;
 
 }

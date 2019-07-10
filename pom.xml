@@ -21,7 +21,7 @@
 
     <groupId>cn.stormbirds</groupId>
     <artifactId>payservice</artifactId>
-    <version>${payservice.version}</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>payservice</name>
     <description>第三方支付聚合服务</description>
     <url>https://github.com/stormbirds/payservice</url>
@@ -64,6 +64,8 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>-->
+
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

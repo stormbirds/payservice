@@ -21,12 +21,15 @@ public class PayMessage implements Serializable {
     private String fromPay;
     private String describe;
 
+    public PayMessage() {
+    }
+
     public PayMessage(Map<String, Object> payMessage) {
         this.payMessage = payMessage;
     }
 
     public PayMessage(Map<String, Object> payMessage, String payType, String msgType) {
-        this(payMessage);
+        this.payMessage = payMessage;
         this.payType = payType;
         this.msgType = msgType;
     }
@@ -38,6 +41,11 @@ public class PayMessage implements Serializable {
         this.payType = payType;
         this.transactionType = transactionType;
     }
+
+    protected void setPayMessage(Map<String, Object> payMessage) {
+        this.payMessage = payMessage;
+    }
+
 
     public String getMsgType() {
         return msgType;

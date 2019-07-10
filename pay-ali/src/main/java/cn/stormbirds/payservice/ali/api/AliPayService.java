@@ -69,6 +69,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
      *
      * @return 请求地址
      */
+    @Override
     public String getReqUrl(TransactionType transactionType) {
         return payConfigStorage.isTest() ? DEV_REQ_URL : HTTPS_REQ_URL;
     }
@@ -197,8 +198,9 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
         Map<String, Object> bizContent = new TreeMap<>();
         bizContent.put("body", order.getBody());
-        if(StringUtils.isNotBlank(payConfigStorage.getSeller()))
+        if(StringUtils.isNotBlank(payConfigStorage.getSeller())) {
             bizContent.put("seller_id", payConfigStorage.getSeller());
+        }
         bizContent.put("subject", order.getSubject());
         bizContent.put("out_trade_no", order.getOutTradeNo());
         bizContent.put("total_amount", Util.conversionAmount(order.getPrice()).toString());
@@ -207,14 +209,16 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
             case WAP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_WAP_PAY");
-                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl()))
+                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
                     orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
+                }
                 break;
             case APP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_MSECURITY_PAY");
-                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl()))
+                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
                     orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
+                }
                 break;
             case BAR_CODE:
             case WAVE_CODE:
@@ -484,7 +488,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         //获取公共参数
         Map<String, Object> parameters = getPublicParameters(transactionType);
         //设置请求参数的集合
-        parameters.put(BIZ_CONTENT, getContentToJson(tradeNoOrBillDate.toString(), outTradeNoBillType));
+        parameters.put(BIZ_CONTENT, getContentToJson(tradeNoOrBillDate == null ? "" : tradeNoOrBillDate.toString(), outTradeNoBillType));
         //设置签名
         setSign(parameters);
         return requestTemplate.getForObject(getReqUrl() + "?" + UriVariables.getMapToParameters(parameters), JSONObject.class);

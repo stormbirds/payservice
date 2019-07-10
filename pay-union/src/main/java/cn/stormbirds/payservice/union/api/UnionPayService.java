@@ -1,5 +1,6 @@
 package cn.stormbirds.payservice.union.api;
 
+import cn.stormbirds.payservice.union.bean.UnionPayMessage;
 import com.alibaba.fastjson.JSONObject;
 import cn.stormbirds.payservice.common.api.BasePayService;
 import cn.stormbirds.payservice.common.bean.*;
@@ -60,7 +61,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
     /**
      * 证书解释器
      */
-    private CertDescriptor certDescriptor = null;
+    private CertDescriptor certDescriptor;
     /**
      * 构造函数
      *
@@ -130,6 +131,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         return String.format(SINGLE_QUERY_URL, getReqUrl());
     }
 
+    public String getAppTransUrl(){ return String.format(APP_TRANS_URL,getReqUrl());}
 
     public String getFileTransUrl() {
         return String.format(FILE_TRANS_URL, getReqUrl());
@@ -246,50 +248,46 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
     @Override
     public Map<String, Object> orderInfo(PayOrder order) {
         Map<String, Object> params = this.getCommonParam();
-//        if(order instanceof  UnionPayOrder){
-//            UnionPayOrder unionPayOrder = (UnionPayOrder)order;
-//            //todo 其他参数
-////            params.put();
-//        }
+
         UnionTransactionType type = (UnionTransactionType) order.getTransactionType();
+            //设置交易类型相关的参数
+            type.convertMap(params);
 
+            params.put(SDKConstants.param_orderId, order.getOutTradeNo());
 
-        //设置交易类型相关的参数
-        type.convertMap(params);
-
-        params.put(SDKConstants.param_orderId, order.getOutTradeNo());
-
-        if (StringUtils.isNotEmpty(order.getAddition())){
-            params.put(SDKConstants.param_reqReserved, order.getAddition());
-        }
-        switch (type) {
-            case WAP:
-            case WEB:
-                //todo PCwap网关跳转支付特殊用法.txt
-            case B2B:
-                params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
-                params.put("orderDesc", order.getSubject());
-                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-
-                params.put(SDKConstants.param_frontUrl, payConfigStorage.getReturnUrl());
-                break;
-            case CONSUME:
-                params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
-                params.put(SDKConstants.param_qrNo, order.getAuthCode());
-                break;
-            case APPLY_QR_CODE:
-                if (null != order.getPrice()) {
+            if (StringUtils.isNotEmpty(order.getAddition())) {
+                params.put(SDKConstants.param_reqReserved, order.getAddition());
+            }
+            switch (type) {
+                case WAP:
+                    break;
+                case WEB:
+                    //todo PCwap网关跳转支付特殊用法.txt
+                    break;
+                case B2B:
                     params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
-                }
-                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-                break;
-            default:
-                params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
-                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-                params.put("orderDesc", order.getSubject());
-        }
+                    params.put("orderDesc", order.getSubject());
+                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
 
-        return setSign(params);
+                    params.put(SDKConstants.param_frontUrl, payConfigStorage.getReturnUrl());
+                    break;
+                case CONSUME:
+                    params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    params.put(SDKConstants.param_qrNo, order.getAuthCode());
+                    break;
+                case APPLY_QR_CODE:
+                    if (null != order.getPrice()) {
+                        params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    }
+                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
+                    break;
+                default:
+                    params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
+                    params.put("orderDesc", order.getSubject());
+            }
+
+            return setSign(params);
     }
 
 
@@ -660,7 +658,16 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         return Collections.emptyMap();
     }
 
-
+    /**
+     * 创建消息
+     *
+     * @param message 支付平台返回的消息
+     * @return 支付消息对象
+     */
+    @Override
+    public PayMessage createMessage(Map<String, Object> message) {
+        return UnionPayMessage.create(message);
+    }
 
 
 }

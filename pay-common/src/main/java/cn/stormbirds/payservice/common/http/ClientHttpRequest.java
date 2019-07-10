@@ -7,6 +7,7 @@ import cn.stormbirds.payservice.common.bean.result.PayException;
 import cn.stormbirds.payservice.common.exception.PayErrorException;
 import cn.stormbirds.payservice.common.util.XML;
 import cn.stormbirds.payservice.common.util.str.StringUtils;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.*;
@@ -298,7 +299,7 @@ public class ClientHttpRequest<T> extends HttpEntityEnclosingRequestBase impleme
 
             //获取响应的文本内容
             String result = EntityUtils.toString(entity, getDefaultCharset());
-            if (LOG.isDebugEnabled()){
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("请求响应内容：\r\n" + result);
             }
             if (responseType.isAssignableFrom(String.class)) {
@@ -309,6 +310,9 @@ public class ClientHttpRequest<T> extends HttpEntityEnclosingRequestBase impleme
             //json类型
             if (isJson(contentType[0], first)) {
                 try {
+                    if (responseType.isAssignableFrom(JSONObject.class)) {
+                        return (T)JSON.parseObject(result);
+                    }
                     return JSON.parseObject(result, responseType);
                 } catch (JSONException e) {
                     throw new PayErrorException(new PayException("failure", String.format("类型转化异常,contentType: %s\n%s", entity.getContentType().getValue(), e.getMessage()), result));
@@ -317,9 +321,11 @@ public class ClientHttpRequest<T> extends HttpEntityEnclosingRequestBase impleme
             //xml类型
             if (isXml(contentType[0], first)) {
                 try {
-//                    return XML.toJSONObject(result, getDefaultCharset()).toJavaObject(responseType);
-                    return JSON.toJavaObject(XML.toJSONObject(result, getDefaultCharset()),responseType);
-                }catch (Exception e){
+                    if (responseType.isAssignableFrom(JSONObject.class)) {
+                        return (T) XML.toJSONObject(result, getDefaultCharset());
+                    }
+                    return XML.toJSONObject(result, getDefaultCharset()).toJavaObject(responseType);
+                } catch (Exception e) {
                     ;
                 }
             }

@@ -65,6 +65,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
      * 获取对应的请求地址
      * @return 请求地址
      */
+    @Override
     public String getReqUrl(TransactionType transactionType){
         return payConfigStorage.isTest() ? DEV_URL_FUIOU_BASE_DOMAIN : URL_FUIOU_BASE_DOMAIN;
     }
