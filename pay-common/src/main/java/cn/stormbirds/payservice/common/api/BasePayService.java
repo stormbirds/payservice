@@ -385,7 +385,7 @@ public abstract class BasePayService<PC extends PayConfigStorage> implements Pay
         if (!verify(data)){
             return getPayOutMessage("fail", "失败");
         }
-        PayMessage payMessage = new PayMessage(data);
+        PayMessage payMessage = this.createMessage(data);
         Map<String, Object> context = new HashMap<String, Object>();
         for (PayMessageInterceptor interceptor : interceptors){
             if (!interceptor.intercept(payMessage, context, this)){

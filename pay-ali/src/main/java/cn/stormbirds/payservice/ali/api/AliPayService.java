@@ -1,5 +1,6 @@
 package cn.stormbirds.payservice.ali.api;
 
+import cn.stormbirds.payservice.ali.bean.AliPayMessage;
 import cn.stormbirds.payservice.ali.bean.AliTransactionType;
 import cn.stormbirds.payservice.ali.bean.OrderSettle;
 import cn.stormbirds.payservice.common.api.BasePayService;
@@ -547,6 +548,11 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         //设置签名
         setSign(parameters);
         return getHttpRequestTemplate().postForObject(getReqUrl() + "?" + UriVariables.getMapToParameters(parameters), null, JSONObject.class);
+    }
+
+    @Override
+    public PayMessage createMessage(Map<String, Object> message) {
+        return AliPayMessage.create(message);
     }
 
 
