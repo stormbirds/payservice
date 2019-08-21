@@ -12,6 +12,7 @@
         <module>pay-wx-youdian</module>
         <module>pay-wx</module>
         <module>pay-yiji</module>
+        <module>pay-citcon</module>
     </modules>
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -172,6 +173,8 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
+                    <localCheckout>true</localCheckout>
+                    <pushChanges>false</pushChanges>
                     <autoVersionSubmodules>false</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>

@@ -24,15 +24,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
- * @description. 支付宝支付服务
  * @author StormBirds
+ * @description. 支付宝支付服务
  * @email. xbaojun@gmail.com
  * @date. 2019/6/15 17:22
- *
  */
 public class AliPayService extends BasePayService<AliPayConfigStorage> {
-    
+
     /**
      * 正式测试环境
      */
@@ -41,11 +39,11 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
      * 沙箱测试环境账号
      */
     private static final String DEV_REQ_URL = "https://openapi.alipaydev.com/gateway.do";
-    
+
     public static final String SIGN = "sign";
-    
+
     public static final String SUCCESS_CODE = "10000";
-    
+
     public static final String CODE = "code";
     /**
      * 附加参数
@@ -74,6 +72,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
     public String getReqUrl(TransactionType transactionType) {
         return payConfigStorage.isTest() ? DEV_REQ_URL : HTTPS_REQ_URL;
     }
+
     /**
      * 获取对应的请求地址
      *
@@ -126,7 +125,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
                 if (SIGN.equals(entry.getKey())) {
                     continue;
                 }
-                TreeMap<String, Object> response = new TreeMap((Map<String, Object> )entry.getValue());
+                TreeMap<String, Object> response = new TreeMap((Map<String, Object>) entry.getValue());
                 LinkedHashMap<Object, Object> linkedHashMap = new LinkedHashMap<>();
                 linkedHashMap.put(CODE, response.remove(CODE));
                 linkedHashMap.put("msg", response.remove("msg"));
@@ -199,7 +198,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
         Map<String, Object> bizContent = new TreeMap<>();
         bizContent.put("body", order.getBody());
-        if(StringUtils.isNotBlank(payConfigStorage.getSeller())) {
+        if (StringUtils.isNotBlank(payConfigStorage.getSeller())) {
             bizContent.put("seller_id", payConfigStorage.getSeller());
         }
         bizContent.put("subject", order.getSubject());
@@ -207,17 +206,21 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         bizContent.put("total_amount", Util.conversionAmount(order.getPrice()).toString());
         switch ((AliTransactionType) order.getTransactionType()) {
             case PAGE:
+                bizContent.put(PASSBACK_PARAMS, order.getAddition());
+                bizContent.put(PRODUCT_CODE, "FAST_INSTANT_TRADE_PAY");
+                orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
+                break;
             case WAP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_WAP_PAY");
-                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
+                if (StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
                     orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
                 }
                 break;
             case APP:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
                 bizContent.put(PRODUCT_CODE, "QUICK_MSECURITY_PAY");
-                if(StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
+                if (StringUtils.isNotBlank(payConfigStorage.getReturnUrl())) {
                     orderInfo.put(RETURN_URL, payConfigStorage.getReturnUrl());
                 }
                 break;
@@ -226,6 +229,8 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
                 bizContent.put("scene", order.getTransactionType().toString().toLowerCase());
                 bizContent.put(PRODUCT_CODE, "FACE_TO_FACE_PAYMENT");
                 bizContent.put("auth_code", order.getAuthCode());
+                break;
+            default:
                 break;
 
         }
@@ -289,7 +294,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         String bizContent = (String) orderInfo.remove(BIZ_CONTENT);
         formHtml.append(getReqUrl()).append("?").append(UriVariables.getMapToParameters(orderInfo))
                 .append("\" method=\"").append(method.name().toLowerCase()).append("\">");
-        formHtml.append("<input type=\"hidden\" name=\"biz_content\" value=\'" ).append( bizContent ).append( "\'/>");
+        formHtml.append("<input type=\"hidden\" name=\"biz_content\" value=\'").append(bizContent).append("\'/>");
         formHtml.append("</form>");
         formHtml.append("<script>document.forms['_alipaysubmit_'].submit();</script>");
 
@@ -339,10 +344,11 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
     /**
      * 统一收单交易结算接口
+     *
      * @param order 交易结算信息
      * @return 结算结果
      */
-    public Map<String, Object> settle(OrderSettle order){
+    public Map<String, Object> settle(OrderSettle order) {
         //获取公共参数
         Map<String, Object> parameters = getPublicParameters(AliTransactionType.SETTLE);
         parameters.put(BIZ_CONTENT, JSON.toJSONString(order.toBizContent()));

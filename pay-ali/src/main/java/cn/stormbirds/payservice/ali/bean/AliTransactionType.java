@@ -14,12 +14,7 @@ import cn.stormbirds.payservice.common.bean.TransactionType;
  *
  */
 public enum  AliTransactionType implements TransactionType {
-    /**
-     * 即时到帐
-     * 过时的名称，请换至 {@link #PAGE}
-     */
-    @Deprecated
-    DIRECT("alipay.trade.page.pay"),
+
     /**
      * 网页支付
      */
