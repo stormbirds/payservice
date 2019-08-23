@@ -265,24 +265,24 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
                     //todo PCwap网关跳转支付特殊用法.txt
                     break;
                 case B2B:
-                    params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
                     params.put("orderDesc", order.getSubject());
                     params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
 
                     params.put(SDKConstants.param_frontUrl, payConfigStorage.getReturnUrl());
                     break;
                 case CONSUME:
-                    params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
                     params.put(SDKConstants.param_qrNo, order.getAuthCode());
                     break;
                 case APPLY_QR_CODE:
                     if (null != order.getPrice()) {
-                        params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                        params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
                     }
                     params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
                     break;
                 default:
-                    params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(order.getPrice()));
+                    params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
                     params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
                     params.put("orderDesc", order.getSubject());
             }
@@ -395,6 +395,24 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
             if (SDKConstants.OK_RESP_CODE.equals(response.get(SDKConstants.param_respCode))) {
                 //成功
                 return MatrixToImageWriter.writeInfoToJpgBuff((String) response.get(SDKConstants.param_qrCode));
+            }
+            throw new PayErrorException(new PayException((String) response.get(SDKConstants.param_respCode), (String) response.get(SDKConstants.param_respMsg), responseStr));
+        }
+        throw new PayErrorException(new PayException("failure", "验证签名失败", responseStr));
+    }
+
+    @Override
+    public String getQrPay(PayOrder order) {
+        Map<String, Object> params = orderInfo(order);
+        String responseStr = getHttpRequestTemplate().postForObject(this.getBackTransUrl(), params, String.class);
+        Map<String, Object> response = UriVariables.getParametersToMap(responseStr);
+        if (response.isEmpty()) {
+            throw new PayErrorException(new PayException("failure", "响应内容有误!", responseStr));
+        }
+        if (this.verify(response)) {
+            if (SDKConstants.OK_RESP_CODE.equals(response.get(SDKConstants.param_respCode))) {
+                //成功
+                return (String) response.get(SDKConstants.param_qrCode);
             }
             throw new PayErrorException(new PayException((String) response.get(SDKConstants.param_respCode), (String) response.get(SDKConstants.param_respMsg), responseStr));
         }
@@ -567,7 +585,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         Map<String, Object> params = this.getCommonParam();
         type.convertMap(params);
         params.put(SDKConstants.param_orderId, refundOrder.getRefundNo());
-        params.put(SDKConstants.param_txnAmt, Util.conversionCentAmount(refundOrder.getRefundAmount()));
+        params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(refundOrder.getRefundAmount()));
         params.put(SDKConstants.param_origQryId, refundOrder.getTradeNo());
         this.setSign(params);
         String responseStr = getHttpRequestTemplate().postForObject(this.getBackTransUrl(), params, String.class);

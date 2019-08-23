@@ -133,7 +133,7 @@ public class OrderSettle {
             royalty.put("trans_in",  transIn);
         }
         if (null !=  amount){
-            royalty.put("amount", Util.conversionAmount(amount));
+            royalty.put("amount", Util.trimmingAccuracyAmount(amount));
         }
         if (null !=  amountPercentage){
             royalty.put("amount_percentage", amountPercentage);

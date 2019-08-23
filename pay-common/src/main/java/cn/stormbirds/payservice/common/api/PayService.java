@@ -158,6 +158,14 @@ public interface PayService<PC extends PayConfigStorage> {
     BufferedImage genQrPay(PayOrder order);
 
     /**
+     * 获取输出二维码信息,
+     *
+     * @param order 发起支付的订单信息
+     * @return 返回二维码信息,，支付时需要的
+     */
+    String getQrPay(PayOrder order);
+
+    /**
      * 刷卡付,pos主动扫码付款(条码付)
      *
      * @param order 发起支付的订单信息

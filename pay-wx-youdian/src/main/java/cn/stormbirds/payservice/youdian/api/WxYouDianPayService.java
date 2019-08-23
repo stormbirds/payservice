@@ -228,7 +228,7 @@ public class WxYouDianPayService extends BasePayService<WxYouDianPayConfigStorag
     public JSONObject orderInfo(PayOrder order) {
         TreeMap<String, String> data = new TreeMap<>();
         data.put("access_token",  getAccessToken());
-        data.put("paymoney", Util.conversionAmount(order.getPrice()).toString());
+        data.put("paymoney", Util.trimmingAccuracyAmount(order.getPrice()).toString());
         String apbNonce = SignUtils.randomStr();
         String sign = createSign(SignUtils.parameterText(data, "") + apbNonce, payConfigStorage.getInputCharset());
         data.put("PayMoney", data.remove("paymoney"));
@@ -337,8 +337,13 @@ public class WxYouDianPayService extends BasePayService<WxYouDianPayConfigStorag
 
     @Override
     public BufferedImage genQrPay(PayOrder order) {
+        return  MatrixToImageWriter.writeInfoToJpgBuff(getQrPay(order));
+    }
+
+    @Override
+    public String getQrPay(PayOrder order) {
         JSONObject orderInfo = orderInfo(order);
-        return  MatrixToImageWriter.writeInfoToJpgBuff((String) orderInfo.get("code_url"));
+        return  (String) orderInfo.get("code_url");
     }
 
     /**

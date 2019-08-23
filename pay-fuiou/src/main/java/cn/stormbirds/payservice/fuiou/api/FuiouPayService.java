@@ -13,7 +13,6 @@ import cn.stormbirds.payservice.common.util.str.StringUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -174,7 +173,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
         //商户订单号
         parameters.put("order_id", order.getOutTradeNo());
         //交易金额
-        parameters.put("order_amt", Util.conversionCentAmount(order.getPrice()));
+        parameters.put("order_amt", Util.conversionCent2YuanAmount(order.getPrice()));
         //交易币种
 //        parameters.put("cur_type", null == order.getCurType() ? FuiouCurType.CNY:order.getCurType());
         //支付类型
@@ -296,6 +295,11 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String getQrPay(PayOrder order) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * 暂未实现或无此功能
      * @param order 发起支付的订单信息
@@ -380,7 +384,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
         //原订单号
         params.put("origin_order_id", refundOrder.getTradeNo());
         //退款金额
-        params.put("refund_amt", Util.conversionCentAmount(refundOrder.getRefundAmount()));
+        params.put("refund_amt", Util.conversionCent2YuanAmount(refundOrder.getRefundAmount()));
         //备注
         params.put("rem", "");
         params.put("md5", createSign(SignUtils.parameters2MD5Str(params, "|"), payConfigStorage.getInputCharset()));

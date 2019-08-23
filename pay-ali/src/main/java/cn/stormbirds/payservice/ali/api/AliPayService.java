@@ -203,7 +203,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         }
         bizContent.put("subject", order.getSubject());
         bizContent.put("out_trade_no", order.getOutTradeNo());
-        bizContent.put("total_amount", Util.conversionAmount(order.getPrice()).toString());
+        bizContent.put("total_amount", Util.trimmingAccuracyAmount(order.getPrice()).toString());
         switch ((AliTransactionType) order.getTransactionType()) {
             case PAGE:
                 bizContent.put(PASSBACK_PARAMS, order.getAddition());
@@ -323,6 +323,19 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
     }
 
+    @Override
+    public String getQrPay(PayOrder order) {
+        Map<String, Object> orderInfo = orderInfo(order);
+
+        //预订单
+        JSONObject result = getHttpRequestTemplate().postForObject(getReqUrl() + "?" + UriVariables.getMapToParameters(orderInfo), null, JSONObject.class);
+        JSONObject response = result.getJSONObject("alipay_trade_precreate_response");
+        if (SUCCESS_CODE.equals(response.getString(CODE))) {
+            return response.getString("qr_code");
+        }
+        throw new PayErrorException(new PayException(response.getString(CODE), response.getString("msg"), result.toJSONString()));
+    }
+
     /**
      * pos主动扫码付款(条码付)
      *
@@ -414,7 +427,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
         if (!StringUtils.isEmpty(refundOrder.getRefundNo())) {
             bizContent.put("out_request_no", refundOrder.getRefundNo());
         }
-        bizContent.put("refund_amount", Util.conversionAmount(refundOrder.getRefundAmount()));
+        bizContent.put("refund_amount", Util.trimmingAccuracyAmount(refundOrder.getRefundAmount()));
         //设置请求参数的集合
         parameters.put(BIZ_CONTENT, JSON.toJSONString(bizContent));
         //设置签名
@@ -520,7 +533,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
             bizContent.put("payee_type", order.getTransferType().getType());
         }
         bizContent.put("payee_account", order.getPayeeAccount());
-        bizContent.put("amount", Util.conversionAmount(order.getAmount()));
+        bizContent.put("amount", Util.trimmingAccuracyAmount(order.getAmount()));
         bizContent.put("payer_show_name", order.getPayerName());
         bizContent.put("payee_real_name", order.getPayeeName());
         bizContent.put("remark", order.getRemark());

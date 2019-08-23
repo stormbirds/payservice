@@ -19,7 +19,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
 import java.awt.image.BufferedImage;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -174,7 +173,7 @@ public class PayoneerPayService extends BasePayService<PayoneerConfigStorage> im
     public Map<String, Object> orderInfo(PayOrder order) {
         Map<String, Object> params = new HashMap<>(7);
         params.put("payee_id", order.getAuthCode());
-        params.put("amount", Util.conversionAmount(order.getPrice()));
+        params.put("amount", Util.trimmingAccuracyAmount(order.getPrice()));
         params.put("client_reference_id", order.getOutTradeNo());
         if (null == order.getCurType()) {
             order.setCurType(DefaultCurType.USD);
@@ -248,6 +247,11 @@ public class PayoneerPayService extends BasePayService<PayoneerConfigStorage> im
      */
     @Override
     public BufferedImage genQrPay(PayOrder order) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getQrPay(PayOrder order) {
         throw new UnsupportedOperationException();
     }
 

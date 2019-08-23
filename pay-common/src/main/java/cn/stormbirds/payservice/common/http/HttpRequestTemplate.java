@@ -12,6 +12,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -79,6 +80,7 @@ public class HttpRequestTemplate {
                 //设置httpclient的SSLSocketFactory
                 .setSSLSocketFactory(createSSL(configStorage))
                 .setConnectionManager(connectionManager(configStorage))
+                .setDefaultRequestConfig(createRequestConfig(configStorage))
                 //设置httpclient的302自动重定向
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build();
@@ -88,6 +90,15 @@ public class HttpRequestTemplate {
 
         return httpClient;
 
+    }
+
+    private RequestConfig createRequestConfig(HttpConfigStorage configStorage) {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(configStorage.getSocketTimeout())
+                .setConnectTimeout(configStorage.getConnectTimeout())
+// .setConnectionRequestTimeout(1000)
+                .build();
+        return requestConfig;
     }
 
     /**

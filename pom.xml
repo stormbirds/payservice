@@ -79,6 +79,7 @@
         </dependencies>
     </dependencyManagement>
     <build>
+        <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -185,6 +186,7 @@
 
 
         </plugins>
+        </pluginManagement>
     </build>
 
     <!--这里部署maven仓库地址-->

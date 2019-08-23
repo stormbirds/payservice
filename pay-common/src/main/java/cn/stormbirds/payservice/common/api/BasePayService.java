@@ -4,6 +4,7 @@ import cn.stormbirds.payservice.common.bean.*;
 import cn.stormbirds.payservice.common.exception.PayErrorException;
 import cn.stormbirds.payservice.common.http.HttpConfigStorage;
 import cn.stormbirds.payservice.common.http.HttpRequestTemplate;
+import cn.stormbirds.payservice.common.util.MatrixToImageWriter;
 import cn.stormbirds.payservice.common.util.sign.SignUtils;
 import cn.stormbirds.payservice.common.util.sign.encrypt.Base64;
 import cn.stormbirds.payservice.common.util.str.StringUtils;
@@ -11,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -134,6 +136,17 @@ public abstract class BasePayService<PC extends PayConfigStorage> implements Pay
     public String toPay(PayOrder order) {
         Map orderInfo = orderInfo(order);
         return buildRequest(orderInfo, MethodType.POST);
+    }
+
+    /**
+     * 生成二维码支付
+     *
+     * @param order 发起支付的订单信息
+     * @return 返回图片信息，支付时需要的
+     */
+    @Override
+    public BufferedImage genQrPay(PayOrder order) {
+        return MatrixToImageWriter.writeInfoToJpgBuff(getQrPay(order));
     }
 
     /**

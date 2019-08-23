@@ -153,7 +153,7 @@ public class PayPalPayService extends BasePayService<PayPalConfigStorage>{
             order.setCurType(DefaultCurType.USD);
         }
         amount.setCurrency(order.getCurType().getType());
-        amount.setTotal(Util.conversionAmount(order.getPrice()).toString());
+        amount.setTotal(Util.trimmingAccuracyAmount(order.getPrice()).toString());
 
         Transaction transaction = new Transaction();
         if (!StringUtils.isEmpty(order.getSubject())){
@@ -213,7 +213,12 @@ public class PayPalPayService extends BasePayService<PayPalConfigStorage>{
 
     @Override
     public BufferedImage genQrPay(PayOrder order) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getQrPay(PayOrder order) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -256,7 +261,7 @@ public class PayPalPayService extends BasePayService<PayPalConfigStorage>{
             }
 
             amount.setCurrency(refundOrder.getCurType().getType());
-            amount.setTotal(Util.conversionAmount(refundOrder.getRefundAmount()).toString());
+            amount.setTotal(Util.trimmingAccuracyAmount(refundOrder.getRefundAmount()).toString());
             request.put("amount", amount);
             request.put("description", refundOrder.getDescription());
         }

@@ -12,7 +12,6 @@ import cn.stormbirds.payservice.common.util.str.StringUtils;
 import cn.stormbirds.payservice.yiji.bean.YiJiTransactionType;
 
 import java.awt.image.BufferedImage;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -167,7 +166,7 @@ public class YiJiPayService extends BasePayService<YiJiPayConfigStorage> {
 
         ((YiJiTransactionType)order.getTransactionType()).setAttribute(orderInfo, order);
 
-        orderInfo.put("tradeAmount", Util.conversionAmount(order.getPrice()));
+        orderInfo.put("tradeAmount", Util.trimmingAccuracyAmount(order.getPrice()));
         //商品条款信息                商品名称
         orderInfo.put("goodsClauses", String.format("[{'name':'%s'}]", order.getBody()));
         //交易名称
@@ -252,6 +251,11 @@ public class YiJiPayService extends BasePayService<YiJiPayConfigStorage> {
     @Override
     public BufferedImage genQrPay(PayOrder order) {
 
+        return null;
+    }
+
+    @Override
+    public String getQrPay(PayOrder order) {
         return null;
     }
 
@@ -363,7 +367,7 @@ public class YiJiPayService extends BasePayService<YiJiPayConfigStorage> {
         Map<String, Object> data = getPublicParameters(YiJiTransactionType.applyRemittranceWithSynOrder);
         data.put("remittranceBatchNo", order.getBatchNo());
         data.put("outOrderNo", order.getOutNo());
-        data.put("payAmount", Util.conversionAmount(order.getAmount()) );
+        data.put("payAmount", Util.trimmingAccuracyAmount(order.getAmount()) );
         data.put("payCurrency", order.getCurType().getType());
         data.put("withdrawCurrency", DefaultCurType.CNY.getType());
         data.put("payMemo",order.getRemark());

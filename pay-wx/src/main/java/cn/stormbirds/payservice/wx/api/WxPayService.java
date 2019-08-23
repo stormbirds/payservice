@@ -180,8 +180,10 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         parameters.put(APPID, payConfigStorage.getAppid());
         parameters.put(MCH_ID, payConfigStorage.getMchId());
         //判断如果是服务商模式信息则加入
-        if (!StringUtils.isEmpty(payConfigStorage.getSubAppid()) && !StringUtils.isEmpty(payConfigStorage.getSubMchId())) {
+        if (!StringUtils.isEmpty(payConfigStorage.getSubAppid())) {
             parameters.put("sub_appid", payConfigStorage.getSubAppid());
+        }
+        if (!StringUtils.isEmpty(payConfigStorage.getSubMchId())) {
             parameters.put("sub_mch_id", payConfigStorage.getSubMchId());
         }
         parameters.put(NONCE_STR, SignUtils.randomStr());
@@ -209,7 +211,7 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         parameters.put("out_trade_no", order.getOutTradeNo());
         parameters.put("spbill_create_ip", StringUtils.isEmpty(order.getSpbillCreateIp()) ? "192.168.1.150" : order.getSpbillCreateIp());
         // 总金额单位为分
-        parameters.put("total_fee", Util.conversionCentAmount(order.getPrice()));
+        parameters.put("total_fee", Util.conversionCent2YuanAmount(order.getPrice()));
         if (StringUtils.isNotEmpty(order.getAddition())) {
             parameters.put("attach", order.getAddition());
         }
@@ -230,9 +232,10 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         //调起支付的参数列表
         JSONObject result = requestTemplate.postForObject(getReqUrl(order.getTransactionType()), requestXML, JSONObject.class);
 
-        if (!SUCCESS.equals(result.get(RETURN_CODE))) {
-            throw new PayErrorException(new WxPayError(result.getString(RETURN_CODE), result.getString(RETURN_MSG_CODE), result.toJSONString()));
+        if (!SUCCESS.equals(result.get(RETURN_CODE)) || !SUCCESS.equals(result.get(RESULT_CODE))) {
+            throw new PayErrorException(new WxPayError(result.getString(RESULT_CODE), result.getString(RETURN_MSG_CODE), result.toJSONString()));
         }
+
         return result;
     }
 
@@ -441,6 +444,17 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         return MatrixToImageWriter.writeInfoToJpgBuff((String) orderInfo.get("code_url"));
     }
 
+    @Override
+    public String getQrPay(PayOrder order) {
+        Map<String, Object> orderInfo = orderInfo(order);
+        //获取对应的支付账户操作工具（可根据账户id）
+        if (!SUCCESS.equals(orderInfo.get(RESULT_CODE))) {
+            throw new PayErrorException(new WxPayError((String)orderInfo.get("err_code"), orderInfo.toString()));
+        }
+
+        return (String) orderInfo.get("code_url");
+    }
+
     /**
      * 刷卡付,pos主动扫码付款
      *
@@ -514,8 +528,8 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         setParameters(parameters, "transaction_id", refundOrder.getTradeNo());
         setParameters(parameters, "out_trade_no", refundOrder.getOutTradeNo());
         setParameters(parameters, "out_refund_no", refundOrder.getRefundNo());
-        parameters.put("total_fee", Util.conversionCentAmount(refundOrder.getTotalAmount()));
-        parameters.put("refund_fee", Util.conversionCentAmount(refundOrder.getRefundAmount()));
+        parameters.put("total_fee", Util.conversionCent2YuanAmount(refundOrder.getTotalAmount()));
+        parameters.put("refund_fee", Util.conversionCent2YuanAmount(refundOrder.getRefundAmount()));
         parameters.put("op_user_id", payConfigStorage.getPid());
         setParameters(parameters, "notify_url",  payConfigStorage.getNotifyUrl());
         //设置签名
@@ -634,7 +648,7 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
 
 
         parameters.put("partner_trade_no", order.getOutNo());
-        parameters.put("amount", Util.conversionCentAmount(order.getAmount()));
+        parameters.put("amount", Util.conversionCent2YuanAmount(order.getAmount()));
         if (!StringUtils.isEmpty(order.getRemark())) {
             parameters.put("desc", order.getRemark());
         }

@@ -580,22 +580,22 @@ public class Util {
 
 
     /**
-     * 元转分
+     * 金额 元转分
      *
      * @param amount 元的金额
      * @return 分的金额
      */
-    public static final int conversionCentAmount(BigDecimal amount) {
+    public static final int conversionCent2YuanAmount(BigDecimal amount) {
         return amount.multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
     }
 
     /**
-     * 元,两位小数
+     * 裁剪金额精度为元,两位小数格式
      *
      * @param amount 元的金额
      * @return 元的金额 两位小数
      */
-    public static final BigDecimal conversionAmount(BigDecimal amount) {
+    public static final BigDecimal trimmingAccuracyAmount(BigDecimal amount) {
         return amount.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
