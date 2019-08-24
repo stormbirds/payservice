@@ -20,7 +20,12 @@ public enum CitconTransactionType implements TransactionType {
     /**
      * 移动端支付，用于app使用
      */
-    APP("app"),
+    ALI_APP("alipay"),
+    WX_APP("wechatpay"),
+    /**
+     * 二维码支付
+     */
+    QR_PAY("pay_qr"),
     /**
      * 微信小程序订单支付
      */
