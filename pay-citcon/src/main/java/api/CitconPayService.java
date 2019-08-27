@@ -1,5 +1,6 @@
 package api;
 
+import bean.CitconTransactionType;
 import cn.stormbirds.payservice.common.api.BasePayService;
 import cn.stormbirds.payservice.common.bean.*;
 import cn.stormbirds.payservice.common.http.HttpConfigStorage;
@@ -10,6 +11,7 @@ import cn.stormbirds.payservice.common.util.MatrixToImageWriter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
@@ -63,6 +65,7 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
 
     /**
      * 获取APP支付预订单
+     *
      * @param order 支付订单
      * @return
      */
@@ -70,7 +73,7 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
     public Map<String, Object> orderInfo(PayOrder order) {
         LinkedHashMap<String, Object> params = new LinkedHashMap<>();
         params.put("amount", conversionCent2YuanAmount(order.getPrice()));
-        params.put("currency",order.getCurType().getType());
+        params.put("currency", order.getCurType().getType());
         params.put("vendor", order.getTransactionType().getMethod());
         params.put("reference", order.getOutTradeNo());
         params.put("subject", order.getSubject());
@@ -82,9 +85,45 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
         HttpStringEntity entity = new HttpStringEntity(params, ContentType.APPLICATION_FORM_URLENCODED);
         //设置 base atuh
         entity.setHeaders(authHeader());
-
-        return getHttpRequestTemplate().postForObject(String.format(getReqUrl(null),order.getCurType().getName().equals("CNY")?CNY_BASE_DOMAIN:NONCNY_BASE_DOMAIN)+"payment/pay_app"
-                ,entity,JSONObject.class);
+        //设置不同支付方式路由
+        String extendUrl = "payment/";
+        boolean isJsonContent = true;
+        switch (order.getTransactionType().getType()) {
+            case "ALI_APP":
+                extendUrl += "pay_app";
+                isJsonContent = true;
+                break;
+            case "WX_APP":
+                extendUrl += "pay_app";
+                isJsonContent = true;
+                break;
+            case "H5":
+                extendUrl += "pay";
+                isJsonContent = false;
+                break;
+            case "QR_PAY":
+                extendUrl += "pay_qr";
+                isJsonContent = false;
+                break;
+            case "WXMINI":
+                isJsonContent = true;
+                break;
+            default:
+                isJsonContent = false;
+                extendUrl += "pay";
+        }
+        if (isJsonContent) {
+            return getHttpRequestTemplate().postForObject(String.format(getReqUrl(null), "CNY".equals(order.getCurType().getName()) ? CNY_BASE_DOMAIN : NONCNY_BASE_DOMAIN) + extendUrl
+                    , entity, JSONObject.class);
+        } else {
+            String finalExtendUrl = extendUrl;
+            String result = getHttpRequestTemplate().postForObject(String.format(getReqUrl(null), "CNY".equals(order.getCurType().getName()) ? CNY_BASE_DOMAIN : NONCNY_BASE_DOMAIN) + finalExtendUrl
+                            +"?"+UriVariables.getMapToParameters(params)
+                    ,entity, String.class);
+            return new HashMap<String, Object>(2) {{
+                put("url", result);
+            }};
+        }
 
     }
 
@@ -98,13 +137,24 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
         return null;
     }
 
+    /**
+     * @param orderInfo 发起支付的订单信息
+     * @param method    请求方式  "post" "get",
+     * @return
+     */
     @Override
     public String buildRequest(Map<String, Object> orderInfo, MethodType method) {
-        return null;
+        if(orderInfo.containsKey("url")){
+            return "<?php\n" +
+                    "header( 'Location: "+ orderInfo.get("url") + "' ) ;\n" +
+                    "?>";
+        }
+        return "";
     }
 
     /**
      * 获取支付二维码
+     *
      * @param order 发起支付的订单信息
      * @return
      */
@@ -120,6 +170,7 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
 
     /**
      * 获取二维码信息字符串
+     *
      * @param order 发起支付的订单信息
      * @return
      */
@@ -127,15 +178,15 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
     public String getQrPay(PayOrder order) {
         LinkedHashMap<String, Object> params = new LinkedHashMap<>();
         params.put("amount", conversionCent2YuanAmount(order.getPrice()));
-        params.put("currency",order.getCurType().getType());
+        params.put("currency", order.getCurType().getType());
         params.put("vendor", "generic");
         params.put("reference", order.getOutTradeNo());
         params.put("ipn_url", payConfigStorage.getNotifyUrl());
         params.put("callback_url", payConfigStorage.getReturnUrl());
         params.put("allow_duplicates", "yes");
 
-        return getHttpRequestTemplate().getForObject(String.format(getReqUrl(null),order.getCurType().getName().equals("CNY")?CNY_BASE_DOMAIN:NONCNY_BASE_DOMAIN)+"payment/pay_qr" + "?" + UriVariables.getMapToParameters(params) ,
-                authHeader(),String.class);
+        return getHttpRequestTemplate().getForObject(String.format(getReqUrl(null), order.getCurType().getName().equals("CNY") ? CNY_BASE_DOMAIN : NONCNY_BASE_DOMAIN) + "payment/pay_qr" + "?" + UriVariables.getMapToParameters(params),
+                authHeader(), String.class);
     }
 
     @Override
@@ -145,6 +196,7 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
 
     /**
      * 查询订单
+     *
      * @param tradeNo    支付平台订单号
      * @param outTradeNo 商户单号
      * @return
@@ -152,16 +204,16 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
     @Override
     public Map<String, Object> query(String tradeNo, String outTradeNo) {
         LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-        if(tradeNo!=null && !tradeNo.isEmpty()) {
+        if (tradeNo != null && !tradeNo.isEmpty()) {
             params.put("transaction_id", tradeNo);
-        }else if(outTradeNo!=null && !outTradeNo.isEmpty()){
+        } else if (outTradeNo != null && !outTradeNo.isEmpty()) {
             params.put("reference", outTradeNo);
-        }else{
+        } else {
             throw new IllegalArgumentException("参数有误，tradeNo或outTradeNo不能同时为空，必须填写一个");
         }
         params.put("inquire_method", "real");
 
-        return getHttpRequestTemplate().getForObject(getReqUrl(null),authHeader(),JSONObject.class,params);
+        return getHttpRequestTemplate().getForObject(getReqUrl(null), authHeader(), JSONObject.class, params);
     }
 
     @Override
@@ -191,13 +243,13 @@ public class CitconPayService extends BasePayService<CitconPayConfigStorage> {
 
     @Override
     public String getReqUrl(TransactionType transactionType) {
-        return payConfigStorage.isTest()?DEV_BASE_URL:PROD_BASE_URL;
+        return payConfigStorage.isTest() ? DEV_BASE_URL : PROD_BASE_URL;
     }
 
-    private HttpHeader authHeader(){
+    private HttpHeader authHeader() {
 
         List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Authorization", "Bearer "+payConfigStorage.getAccessToken()));
+        headers.add(new BasicHeader("Authorization", "Bearer " + payConfigStorage.getAccessToken()));
 
         return new HttpHeader(headers);
     }
