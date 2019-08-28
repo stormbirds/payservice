@@ -15,6 +15,11 @@
             <groupId>cn.stormbirds</groupId>
             <artifactId>pay-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>2.9.9</version>
+        </dependency>
     </dependencies>
 
 

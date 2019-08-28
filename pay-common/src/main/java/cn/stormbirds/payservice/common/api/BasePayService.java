@@ -35,6 +35,9 @@ public abstract class BasePayService<PC extends PayConfigStorage> implements Pay
     protected int retrySleepMillis = 1000;
 
     protected int maxRetryTimes = 5;
+
+    protected final String dayBillTypeFormat="yyyy-MM-dd";
+    protected final String monthBillTypeFormat="yyyy-MM-dd";
     /**
      * 支付消息处理器
      */

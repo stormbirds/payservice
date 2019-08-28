@@ -16,7 +16,7 @@ public enum CitconTransactionType implements TransactionType {
     /**
      * h5 支付用于web支付
      */
-    H5("h5"),
+    H5("generic"),
     /**
      * 移动端支付，用于app使用
      */
