@@ -222,7 +222,7 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
             parameters.put("time_expire", DateUtils.formatDate(order.getExpirationTime(), DateUtils.YYYYMMDDHHMMSS));
         }
         ((WxTransactionType) order.getTransactionType()).setAttribute(parameters, order);
-
+        parameters =  preOrderHandler(parameters, order);
         setSign(parameters);
 
         String requestXML = XML.getMap2Xml(parameters);
@@ -254,13 +254,13 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
         JSONObject result = unifiedOrder(order);
 
         // 对微信返回的数据进行校验
-        if (verify(result)) {
+        if (verify(preOrderHandler(result, order))) {
             //如果是扫码支付或者刷卡付无需处理，直接返回
             if (((WxTransactionType) order.getTransactionType()).isReturn()) {
                 return result;
             }
 
-            SortedMap<String, Object> params = new TreeMap<String, Object>();
+            Map<String, Object> params = new TreeMap<String, Object>();
 
             if (WxTransactionType.JSAPI == order.getTransactionType()) {
                 params.put("signType", payConfigStorage.getSignType());
@@ -279,6 +279,7 @@ public class WxPayService extends BasePayService<WxPayConfigStorage> {
             String paySign = createSign(SignUtils.parameterText(params), payConfigStorage.getInputCharset());
             LOG.debug("签名后字符串："+paySign);
             params.put(SIGN, paySign);
+            params =  preOrderHandler(params, order);
 
             Map<String ,String > map = new HashMap<>(2);
             map.put("outTradeNo",order.getOutTradeNo());

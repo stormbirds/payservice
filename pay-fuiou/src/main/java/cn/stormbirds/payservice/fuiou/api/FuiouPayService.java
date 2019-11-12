@@ -155,7 +155,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
      */
     @Override
     public Map<String, Object> orderInfo(PayOrder order) {
-        LinkedHashMap<String, Object> parameters = getOrderInfo(order);
+        Map<String, Object> parameters = getOrderInfo(order);
         String sign = createSign(SignUtils.parameters2MD5Str(parameters, "|"), payConfigStorage.getInputCharset());
         parameters.put("md5", sign);
         return parameters;
@@ -166,7 +166,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
      * @param order 支付订单
      * @return 返回支付请求参数集合
      */
-    private LinkedHashMap<String, Object> getOrderInfo(PayOrder order) {
+    private Map<String, Object> getOrderInfo(PayOrder order) {
         LinkedHashMap<String, Object> parameters = new LinkedHashMap<String, Object>();
         //商户代码
         parameters.put("mchnt_cd", payConfigStorage.getPid());
@@ -198,7 +198,7 @@ public class FuiouPayService extends BasePayService<FuiouPayConfigStorage> {
         parameters.put("rem", "");
         //版本号
         parameters.put("ver", "1.0.1");
-        return parameters;
+        return preOrderHandler(parameters, order);
     }
 
     /**

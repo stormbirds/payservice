@@ -32,11 +32,11 @@ import java.util.TreeMap;
 public class AliPayService extends BasePayService<AliPayConfigStorage> {
 
     /**
-     * 正式测试环境
+     * 正式环境
      */
     private static final String HTTPS_REQ_URL = "https://openapi.alipay.com/gateway.do";
     /**
-     * 沙箱测试环境账号
+     * 沙箱测试环境地址
      */
     private static final String DEV_REQ_URL = "https://openapi.alipaydev.com/gateway.do";
 
@@ -238,7 +238,7 @@ public class AliPayService extends BasePayService<AliPayConfigStorage> {
             bizContent.put("timeout_express", DateUtils.minutesRemaining(order.getExpirationTime()) + "m");
         }
         orderInfo.put(BIZ_CONTENT, JSON.toJSONString(bizContent));
-        return orderInfo;
+        return preOrderHandler(orderInfo, order);
     }
 
     /**

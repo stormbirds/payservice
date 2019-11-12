@@ -185,7 +185,7 @@ public class PayPalPayService extends BasePayService<PayPalConfigStorage>{
         if ("created".equals(resp.getString("state")) && StringUtils.isNotEmpty(resp.getString("id"))){
             order.setOutTradeNo(resp.getString("id"));
         }
-        return resp;
+        return preOrderHandler(resp, order);
     }
 
     @Override

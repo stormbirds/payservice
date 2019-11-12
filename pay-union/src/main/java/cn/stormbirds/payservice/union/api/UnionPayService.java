@@ -32,12 +32,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
  * @ Description UnionPayService.java
  * @ Author StormBirds
  * @ Email xbaojun@gmail.com
  * @ Date 2019/6/17 20:34
- *
  */
 public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
     /**
@@ -62,6 +60,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
      * 证书解释器
      */
     private CertDescriptor certDescriptor;
+
     /**
      * 构造函数
      *
@@ -100,6 +99,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
 
         return this;
     }
+
     /**
      * 获取支付请求地址
      *
@@ -110,6 +110,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
     public String getReqUrl(TransactionType transactionType) {
         return (payConfigStorage.isTest() ? TEST_BASE_DOMAIN : RELEASE_BASE_DOMAIN);
     }
+
     /**
      * 根据是否为沙箱环境进行获取请求地址
      *
@@ -131,7 +132,9 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         return String.format(SINGLE_QUERY_URL, getReqUrl());
     }
 
-    public String getAppTransUrl(){ return String.format(APP_TRANS_URL,getReqUrl());}
+    public String getAppTransUrl() {
+        return String.format(APP_TRANS_URL, getReqUrl());
+    }
 
     public String getFileTransUrl() {
         return String.format(FILE_TRANS_URL, getReqUrl());
@@ -228,6 +231,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
      * 超过此时间后，除网银交易外，其他交易银联系统会拒绝受理，提示超时。 跳转银行网银交易如果超时后交易成功，会自动退款，大约5个工作日金额返还到持卡人账户。
      * 此时间建议取支付时的北京时间加15分钟。
      * 超过超时时间调查询接口应答origRespCode不是A6或者00的就可以判断为失败。
+     *
      * @param expirationTime 超时时间
      * @return 具体的时间字符串
      */
@@ -238,6 +242,7 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         }
         return DateUtils.formatDate(new Timestamp(System.currentTimeMillis() + 30 * 60 * 1000), DateUtils.YYYYMMDDHHMMSS);
     }
+
     /**
      * 返回创建的订单信息
      *
@@ -250,44 +255,44 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
         Map<String, Object> params = this.getCommonParam();
 
         UnionTransactionType type = (UnionTransactionType) order.getTransactionType();
-            //设置交易类型相关的参数
-            type.convertMap(params);
+        //设置交易类型相关的参数
+        type.convertMap(params);
 
-            params.put(SDKConstants.param_orderId, order.getOutTradeNo());
+        params.put(SDKConstants.param_orderId, order.getOutTradeNo());
 
-            if (StringUtils.isNotEmpty(order.getAddition())) {
-                params.put(SDKConstants.param_reqReserved, order.getAddition());
-            }
-            switch (type) {
-                case WAP:
-                    break;
-                case WEB:
-                    //todo PCwap网关跳转支付特殊用法.txt
-                    break;
-                case B2B:
+        if (StringUtils.isNotEmpty(order.getAddition())) {
+            params.put(SDKConstants.param_reqReserved, order.getAddition());
+        }
+        switch (type) {
+            case WAP:
+                break;
+            case WEB:
+                //todo PCwap网关跳转支付需要查看网银支付文档
+                break;
+            case B2B:
+                params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
+                params.put("orderDesc", order.getSubject());
+                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
+
+                params.put(SDKConstants.param_frontUrl, payConfigStorage.getReturnUrl());
+                break;
+            case CONSUME:
+                params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
+                params.put(SDKConstants.param_qrNo, order.getAuthCode());
+                break;
+            case APPLY_QR_CODE:
+                if (null != order.getPrice()) {
                     params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
-                    params.put("orderDesc", order.getSubject());
-                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-
-                    params.put(SDKConstants.param_frontUrl, payConfigStorage.getReturnUrl());
-                    break;
-                case CONSUME:
-                    params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
-                    params.put(SDKConstants.param_qrNo, order.getAuthCode());
-                    break;
-                case APPLY_QR_CODE:
-                    if (null != order.getPrice()) {
-                        params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
-                    }
-                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-                    break;
-                default:
-                    params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
-                    params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
-                    params.put("orderDesc", order.getSubject());
-            }
-
-            return setSign(params);
+                }
+                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
+                break;
+            default:
+                params.put(SDKConstants.param_txnAmt, Util.conversionCent2YuanAmount(order.getPrice()));
+                params.put(SDKConstants.param_payTimeout, getPayTimeout(order.getExpirationTime()));
+                params.put("orderDesc", order.getSubject());
+        }
+        params = preOrderHandler(params, order);
+        return setSign(params);
     }
 
 
@@ -507,10 +512,11 @@ public class UnionPayService extends BasePayService<UnionPayConfigStorage> {
     /**
      * 功能：将订单信息进行签名并提交请求
      * 业务范围：手机控件支付产品(WAP),
-     * @param order         订单信息
-     * @return  成功：返回支付结果  失败：返回
+     *
+     * @param order 订单信息
+     * @return 成功：返回支付结果  失败：返回
      */
-    public Map<String ,Object>  sendHttpRequest(PayOrder order){
+    public Map<String, Object> sendHttpRequest(PayOrder order) {
         Map<String, Object> params = orderInfo(order);
         String responseStr = getHttpRequestTemplate().postForObject(this.getBackTransUrl(), params, String.class);
         Map<String, Object> response = UriVariables.getParametersToMap(responseStr);
